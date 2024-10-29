@@ -62,3 +62,64 @@ Status Codes:
     Password must be at least 8 characters long
 - **409:** email already exists
 - **500:** Internal server error
+
+### SignIn
+
+Request: POST /signup
+
+```json
+{
+  "email": "string",
+  "password": "string"
+}
+```
+
+Response:
+
+```json
+{
+  "message": "string",
+  "access_token": "string",
+  "refresh_token": "string"
+}
+```
+
+Status Codes:
+
+- **200:** signed in
+- **400:** invalid request body, check message for more information.
+  It could be:
+  - Invalid/missing email format
+  - Invalid/missing password:
+    Password must contain at numbers, uppercase and lowercase letters, symbols
+    Password must be at least 8 characters long
+- **401:** Invalid credentials (email, password or both).
+- **500:** Internal server error
+
+### Refresh Tokens
+
+Request: POST /refresh-token
+
+```json
+{
+  "refresh-token": "string"
+}
+```
+
+Response:
+
+```json
+{
+  "message": "string",
+  "access_token": "string",
+  "refresh_token": "string"
+}
+```
+
+Status Codes:
+
+- **200:** token refreshed
+- **400:** invalid request body, check message for more information.
+  - missing refresh-token
+- **401:** Invalid/expired refresh-token
+- **500:** Internal server error
