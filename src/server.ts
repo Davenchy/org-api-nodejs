@@ -1,7 +1,7 @@
 import express from "express"
 import mongoose from "mongoose"
 import { TEST, database, server } from "./config"
-import UsersController from "./controllers/users"
+import Controllers from "./controllers"
 import { useController } from "./decorators/router"
 import { logger } from "./helpers/logger"
 import { ErrorHandlerMiddleware } from "./middlewares/errorHandler"
@@ -18,7 +18,7 @@ const main = async () => {
   app.use(LoggerMiddleware)
 
   logger.debug("Defining controllers")
-  useController(UsersController, app)
+  app.use(Controllers)
 
   app.use(routeNotFound)
   app.use(ErrorHandlerMiddleware)

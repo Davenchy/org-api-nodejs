@@ -49,23 +49,34 @@ export const DELETE = (path = "", ...middlewares: RequestHandler[]) =>
   Route("delete", path, ...middlewares)
 
 // biome-ignore lint/suspicious/noExplicitAny:
-export const useController = (controller: any, app: Express) => {
-  if (!Reflect.hasOwnMetadata(baseRouteSymbol, controller)) {
-    throw new Error("Controller must be a class decorated with @Controller()")
-  }
+export function useController(controller: any, app: Express): void
+// biome-ignore lint/suspicious/noExplicitAny:
+export function useController(controllers: any[], app: Express): void
+// biome-ignore lint/suspicious/noExplicitAny:
+export function useController(ctl: any, app: Express): void {
+  // biome-ignore lint/suspicious/noExplicitAny:
+  let controllers: any[]
+  if (!Array.isArray(ctl)) controllers = [ctl]
+  else controllers = ctl
 
-  const base = Reflect.getOwnMetadata(baseRouteSymbol, controller) || ""
-  const handlers: RouteHandlers =
-    Reflect.getOwnMetadata(routeHandlersSymbol, controller.prototype) ||
-    new Map()
+  for (const controller of controllers) {
+    if (!Reflect.hasOwnMetadata(baseRouteSymbol, controller)) {
+      throw new Error("Controller must be a class decorated with @Controller()")
+    }
 
-  for (const path of handlers.keys()) {
-    const pathHandlers: Map<keyof Express, RequestHandler[]> =
-      handlers.get(path) || new Map()
+    const base = Reflect.getOwnMetadata(baseRouteSymbol, controller) || ""
+    const handlers: RouteHandlers =
+      Reflect.getOwnMetadata(routeHandlersSymbol, controller.prototype) ||
+      new Map()
 
-    for (const method of pathHandlers.keys()) {
-      const handlers = pathHandlers.get(method as keyof Express) || []
-      app[method](join("/", base, path), ...handlers)
+    for (const path of handlers.keys()) {
+      const pathHandlers: Map<keyof Express, RequestHandler[]> =
+        handlers.get(path) || new Map()
+
+      for (const method of pathHandlers.keys()) {
+        const handlers = pathHandlers.get(method as keyof Express) || []
+        app[method](join("/", base, path), ...handlers)
+      }
     }
   }
 }
